@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html style="width:100%, height:100%, margin:0px, overflow:hidden">
+  <head>
+
+<link rel="stylesheet" type="text/css" href="fract.css">
+<script src="fract-objects.js"></script>  
+    <body>
+    
+<canvas id="myCanvas" width="600" height="600" style="border:1px solid black;"></canvas>
+<script>
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+
+theWorld = new world();	
+theWorld.populate();
+theWorld.update();
+
+</script>
+
+  
+  <button onclick="animatefract('grow')">&lt;&lt;- Grow -&gt;&gt;</button>
+  <button onclick="animatefract('stop')">Stop</button>
+  <button onclick="animatefract('shrink')">-&gt;&gt;Shrink&lt;&lt;-</button>
+  <br>
+  <button onclick="animatefract('rotLeft')">Rotate left</button>
+  <button onclick="animatefract('rotRight')">Rotate right</button>
+  
+</body>
+</html>
