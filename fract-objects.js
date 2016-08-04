@@ -69,7 +69,7 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
     var layerArray = [];
     var i;
     for (i=0; i < this.individualSquares.length; ++i){
-    // TODO -    this.individualSquares[i]
+    // TODO - Implement this logic if I'll actually need it   this.individualSquares[i]
     
     }
         return layerArray;}
@@ -112,13 +112,59 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
     }
 
   this.addLayer = function(){
-    // find outmost layer == the one with the longest path
-    var outerLayer = this.returnOuterLayer();
+    console.log("Inside addLayer");
+    var outerLayer = this.returnOuterLayer();		// Fetches the squares farthest out in the fractal == the longest paths
   
-    // parse through all of the outer layer and add child nodes in all free directions
-    
 
-    // new squares are added to this.individualSquares to be kept as a part of this particular fractal
+    for (var i = 0; i < outerLayer.length; ++i)     // Add child nodes in all free directions to the squares in outer layer. If adding to center it will add in all directions since path is "C"
+    {
+    	if (this.childScale * (outerLayer[i].size / 2) > 1)			// Safeguard against negative sizes freezing up the browser
+	    {
+			 if (outerLayer[i].path[-1] != "S")						// Checking only the last element of the path since that is the parents
+			 {
+			 var childPath = outerLayer[i].path.slice();           	// Copying the parent path to a new array for the childs path
+			 childPath.push("N");									// Adding the childs alignment in relation to the parent
+			 this.individualSquares.push(new singleSquare(outerLayer[i].x+outerLayer[i].size/2-this.childScale*outerLayer[i].size/4, 
+														 outerLayer[i].y - this.childScale * outerLayer[i].size/2, 
+														 this.childScale * (outerLayer[i].size/2), 
+														 "#FF0000", 
+														 childPath)); 
+			 }
+		
+			 if (outerLayer[i].path[-1] != "W")
+			 {
+			 var childPath = outerLayer[i].path.slice();
+			 childPath.push("E");
+			 this.individualSquares.push(new singleSquare(outerLayer[i].x + outerLayer[i].size, 
+														 outerLayer[i].y + outerLayer[i].size / 2 - this.childScale * outerLayer[i].size / 4, 
+														 this.childScale * (outerLayer[i].size/2),
+														 "#FF0000",
+														 childPath));
+			 }
+		
+			 if (outerLayer[i].path[-1] != "N")
+			 {
+			 var childPath = outerLayer[i].path.slice();
+			 childPath.push("S");
+			 this.individualSquares.push(new singleSquare(outerLayer[i].x + outerLayer[i].size / 2 - this.childScale * outerLayer[i].size / 4, 
+														  outerLayer[i].y + outerLayer[i].size, 
+														  this.childScale * (outerLayer[i].size/2), 
+														 "#FF0000",
+														 childPath));
+			 }
+		
+			 if (outerLayer[i].path[-1] != "E")
+			 {
+			 var childPath = outerLayer[i].path.slice();
+			 childPath.push("W");
+			 this.individualSquares.push(new singleSquare(outerLayer[i].x - this.childScale * outerLayer[i].size/2, 
+														 outerLayer[i].y + outerLayer[i].size / 2 - this.childScale * outerLayer[i].size / 4, 
+														 this.childScale * (outerLayer[i].size/2), 
+														 "#FF0000",
+														 childPath));
+			 }
+        }     
+    }
     
     return;
     }
