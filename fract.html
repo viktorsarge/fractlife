@@ -4,26 +4,31 @@
 
 <link rel="stylesheet" type="text/css" href="fract.css">
 <script src="fract-objects.js"></script>  
+<script src="fract-helperFunctions.js"></script>  
     <body>
     
-<canvas id="myCanvas" width="600" height="600" style="border:1px solid black;"></canvas>
+<canvas id="myCanvas" width="1300" height="500" style="border:1px solid black;"></canvas>
 <script>
+
+// Global variables
 var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
+var w = 1300;					// TODO - replace this with fetching the width from myCanvas
+var h = 500;			    	// TODO - replace this with fetching the height from myCanvas
 
 theWorld = new world();	
 theWorld.populate();
-theWorld.update();
+
+//console.log(theWorld.inhabitants[0].returnOuterLayer());
+    
+setInterval(function(){theWorld.update()}, 20);
+
+
+
 
 </script>
 
   
-  <button onclick="animatefract('grow')">&lt;&lt;- Grow -&gt;&gt;</button>
-  <button onclick="animatefract('stop')">Stop</button>
-  <button onclick="animatefract('shrink')">-&gt;&gt;Shrink&lt;&lt;-</button>
-  <br>
-  <button onclick="animatefract('rotLeft')">Rotate left</button>
-  <button onclick="animatefract('rotRight')">Rotate right</button>
   
 </body>
 </html>
