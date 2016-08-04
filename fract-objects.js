@@ -10,7 +10,7 @@ function world()
                                 randomIntFromInterval(10,w-20),
                                 randomIntFromInterval(10,h-20),
                                 randomIntFromInterval(10,100),                                                            
-                                "FF0000", 1.4
+                                "FF0000", 0.8
                                 // randomIntFromInterval(-4,4)/randomIntFromInterval(-4,4)
                                )
         					   );
@@ -36,7 +36,7 @@ function world()
   
   this.clear = function()										// TODO - Make this function aware of the worlds bgcolor and size
   {
-      ctx.fillStyle = "#FFFFFF";
+      ctx.fillStyle = "#000000";
       ctx.fillRect(0,0,w,h);
       return;
   }
