@@ -10,7 +10,7 @@ function world()
                                 randomIntFromInterval(10,w-20),
                                 randomIntFromInterval(10,h-20),
                                 randomIntFromInterval(10,100),                                                            
-                                "FF0000", 0.8
+                                "#FF0000", 0.8
                                 // randomIntFromInterval(-4,4)/randomIntFromInterval(-4,4)
                                )
         					   );
@@ -47,6 +47,7 @@ function world()
 // **********************  Fractals below here
 // ********************************************************************************
 
+// The main function used to create the squareFractal objects 
 function squareFractal(centerX,centerY,size,color,rotationSpeed)
 {
   this.individualSquares = [];
@@ -74,7 +75,8 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
     }
         return layerArray;}
         
-    
+
+   // Returns an array with the squares of the fractal that has the longest paths
    this.returnOuterLayer = function()
    {
 		var outerLayer = [];
@@ -120,7 +122,7 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
     {
     	if (this.childScale * (outerLayer[i].size / 2) > 1)			// Safeguard against negative sizes freezing up the browser
 	    {
-			 if (outerLayer[i].path[-1] != "S")						// Checking only the last element of the path since that is the parents
+			 if (outerLayer[i].path[outerLayer[i].path.length-1] != "S")						// Checking only the last element of the path since that is the parents
 			 {
 			 var childPath = outerLayer[i].path.slice();           	// Copying the parent path to a new array for the childs path
 			 childPath.push("N");									// Adding the childs alignment in relation to the parent
@@ -131,7 +133,7 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
 														 childPath)); 
 			 }
 		
-			 if (outerLayer[i].path[-1] != "W")
+			 if (outerLayer[i].path[outerLayer[i].path.length-1] != "W")
 			 {
 			 var childPath = outerLayer[i].path.slice();
 			 childPath.push("E");
@@ -142,7 +144,7 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
 														 childPath));
 			 }
 		
-			 if (outerLayer[i].path[-1] != "N")
+			 if (outerLayer[i].path[outerLayer[i].path.length-1] != "N")
 			 {
 			 var childPath = outerLayer[i].path.slice();
 			 childPath.push("S");
@@ -153,7 +155,7 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
 														 childPath));
 			 }
 		
-			 if (outerLayer[i].path[-1] != "E")
+			 if (outerLayer[i].path[outerLayer[i].path.length-1] != "E")
 			 {
 			 var childPath = outerLayer[i].path.slice();
 			 childPath.push("W");
