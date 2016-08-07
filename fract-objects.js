@@ -4,12 +4,12 @@ function world()
 
   this.populate = function()									 // Function to add the creatures to the world
   {
-      for (var i = 0; i < randomIntFromInterval(6,20); ++i)
+      for (var i = 0; i < randomIntFromInterval(3,8); ++i)
       {																// TODO - random rot speed + make the generation of fractals aware of the world size
           this.inhabitants.push(new squareFractal(
                                 randomIntFromInterval(10,w-20),
                                 randomIntFromInterval(10,h-20),
-                                randomIntFromInterval(10,100),                                                            
+                                randomIntFromInterval(10,40),                                                            
                                 "#FF0000", 0.8
                                 // randomIntFromInterval(-4,4)/randomIntFromInterval(-4,4)
                                )
@@ -75,6 +75,19 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
     }
         return layerArray;}
         
+  this.rotate = function(rotation){
+    // Probably redundant since rotation is done in plot 
+    // Can be kept to force rotation to a certain angle for docking etc. 
+    return;
+    }  
+
+  this.grow = function(){
+    // recalculate the size of all squares - from center and outwards since it´s based on parent size
+    }
+
+  this.shrink = function(){
+    // recalculate the size of all squares - from center and outwards since it´s based on parent size
+    }
 
    // Returns an array with the squares of the fractal that has the longest paths
    this.returnOuterLayer = function()
@@ -96,23 +109,6 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
     	
     	return outerLayer;
    }
-  
-
-
-  this.rotate = function(rotation){
-    // Probably redundant since rotation is done in plot 
-    // Can be kept to force rotation to a certain angle for docking etc. 
-    return;
-    }  
-
-  this.grow = function(){
-    // recalculate the size of all squares - from center and outwards since it´s based on parent size
-    }
-
-  this.shrink = function(){
-    // recalculate the size of all squares - from center and outwards since it´s based on parent size
-    }
-
   this.addLayer = function(){
     console.log("Inside addLayer");
     var outerLayer = this.returnOuterLayer();		// Fetches the squares farthest out in the fractal == the longest paths
@@ -194,6 +190,18 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
      ctx.translate(this.centerX, this.centerY);						// Make the center of the fractal the canvas center before rotating around canvas center
      ctx.rotate(this.rotation*Math.PI/180);							// Rotate canvas before painting
      ctx.translate(-this.centerX, -this.centerY);					// Put stuff back 
+     
+     // Lighting stuff below
+     ctx.beginPath();
+     ctx.arc(this.centerX, this.centerY, this.size*2, 0, 2 * Math.PI);
+
+     var grd = ctx.createRadialGradient(this.centerX, this.centerY, this.size*2.5, this.centerX, this.centerY, this.size/2);
+     grd.addColorStop(0, "black");
+     grd.addColorStop(1, "blue");
+
+     ctx.fillStyle = grd;
+     ctx.fill();
+
      for (var i = 0; i < this.individualSquares.length; ++i)		// Make sure to update all of the individual squares of the fractal
      {
         //console.log("Calling plot on square" + i);
@@ -203,6 +211,8 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
      return;
   }  
   
+  // Fill up a fractal with specified nr of layers.
+  // TODO - rename to addNrLayers and change references to it
   this.spawnNew = function(nrLayers){
      this.nrLayers = nrLayers;
      var i;
@@ -211,7 +221,6 @@ function squareFractal(centerX,centerY,size,color,rotationSpeed)
         this.addLayer;
        }
        return;
-  // Create a new from scratch.
   }
 
 }
