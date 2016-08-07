@@ -246,66 +246,6 @@ this.plot = function()
          ctx.fillRect(this.x,this.y,this.size,this.size);
          } 
     return;                   
-    };
-    
-/*  Commented out since it may be best to keep this logic inside fractals instead. 
-
-this.spawnChildren = function()
-  {
-
-	  // console.log("Length of path" + this.path.length);
-
-	  // These four blocks adds all children. Blocks spawning of already filled squares based on the parents path
-	  if (this.path[this.path.length-1] != "S"){
-		childPath = this.path.slice();
-		childPath.push("N");
-		squares.push(new square(
-		  this.x+this.size/2-resizer*this.size/4, 
-		  this.y - resizer * this.size/2, 
-		  resizer * (this.size/2), 
-		  "#FF0000", 
-		  childPath)
-		 );
-	  }
-  
-	  if (this.path[this.path.length-1] != "W"){
-		childPath = this.path.slice();
-		childPath.push("E");
-		squares.push(new square(
-		  this.x + this.size, 
-		  this.y+this.size/2-resizer*this.size/4, 
-		  resizer * (this.size/2), 
-		  "#FF0000", 
-		  childPath)
-		 );
-	  }
-  
-	  if (this.path[this.path.length-1] != "N"){
-		childPath = this.path.slice();
-		childPath.push("S");
-		squares.push(new square(
-		  this.x+this.size/2-resizer*this.size/4, 
-		  this.y + this.size, 
-		  resizer * (this.size/2), 
-		  "#FF0000", 
-		  childPath)
-		);
-	  }
-  
-	  if (this.path[this.path.length-1] != "E"){
-		childPath = this.path.slice();
-		childPath.push("W");
-		squares.push(new square(
-		  this.x - resizer * this.size/2, 
-		  this.y+this.size/2-resizer*this.size/4, 
-		  resizer * (this.size/2), 
-		  "#FF0000", 
-		  childPath)
-		);
-	  }
-   
-
-  };
-  */    
+    }; 
 }
 
