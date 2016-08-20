@@ -4,12 +4,12 @@ function world()
 
   this.populate = function()									 // Function to add the creatures to the world
   {
-      for (var i = 0; i < randomIntFromInterval(3,8); ++i)
+      for (var i = 0; i < randomIntFromInterval(3,12); ++i)
       {																// TODO - random rot speed + make the generation of fractals aware of the world size
           this.inhabitants.push(new squareFractal(
                                 randomIntFromInterval(10,w-20),
                                 randomIntFromInterval(10,h-20),
-                                randomIntFromInterval(10,40),                                                            
+                                randomIntFromInterval(10,120),                                                            
                                 "#FF0000", 0.8
                                 // randomIntFromInterval(-4,4)/randomIntFromInterval(-4,4)
                                )
