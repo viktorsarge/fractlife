@@ -26,7 +26,13 @@ for (var i=0; i < theWorld.inhabitants.length; ++i)
 
 //console.log(theWorld.inhabitants[0].returnOuterLayer());
     
-setInterval(function(){theWorld.update()}, 20);
+// setInterval(function(){theWorld.update()}, 20);
+
+function draw() {
+    requestAnimationFrame(draw);
+    theWorld.update();
+}
+draw();
 
 
 
