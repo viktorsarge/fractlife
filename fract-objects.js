@@ -44,7 +44,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     this.size = size;
     this.centerX = centerX;
     this.centerY = centerY;
-    this.color = color;
+    this.color = "green";
     this.rotationSpeed = rotationSpeed;
     this.rotation = 0;
     this.childScale = 0.85;
@@ -54,7 +54,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     // Register the initial center square of the fractal into the list of individual squares
     this.individualSquares.push(new singleSquare(0 - this.size / 2,
             0 - this.size / 2,
-            size, color,
+            this.size, this.color,
             ["C"]));
 
     this.returnLayer = function (position) { // Implement if accessing individual layers is needed
@@ -73,12 +73,8 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     return;
     }  */
 
-    this.grow = function () {
-        // recalculate the size of all squares - from center and outwards since it´s based on parent size
-    };
-
-    this.shrink = function () {
-        // recalculate the size of all squares - from center and outwards since it´s based on parent size
+    this.resize = function () {
+        // recalculate the size and position of all squares - from center and outwards since it´s based on parent size
     };
 
     // Returns an array with the squares of the fractal that has the longest paths
@@ -97,7 +93,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
             }
         }
         return outerLayer;
-    };
+    };	
 
     this.addLayer = function () {
         console.log("Inside addLayer");
@@ -114,7 +110,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
                             outerLayer[i].x + outerLayer[i].size / 2 - this.childScale * outerLayer[i].size / 4,
                             outerLayer[i].y - this.childScale * outerLayer[i].size / 2,
                             this.childScale * (outerLayer[i].size / 2),
-                            "#FF0000",
+                            this.color,
                             childPath
                         )
                     );
@@ -127,7 +123,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
                             outerLayer[i].x + outerLayer[i].size,
                             outerLayer[i].y + outerLayer[i].size / 2 - this.childScale * outerLayer[i].size / 4,
                             this.childScale * (outerLayer[i].size / 2),
-                            "#FF0000",
+                            this.color,
                             childPath
                         )
                     );
@@ -140,7 +136,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
                             outerLayer[i].x + outerLayer[i].size / 2 - this.childScale * outerLayer[i].size / 4,
                             outerLayer[i].y + outerLayer[i].size,
                             this.childScale * (outerLayer[i].size / 2),
-                            "#FF0000",
+                            this.color,
                             childPath
                         )
                     );
@@ -153,7 +149,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
                             outerLayer[i].x - this.childScale * outerLayer[i].size / 2,
                             outerLayer[i].y + outerLayer[i].size / 2 - this.childScale * outerLayer[i].size / 4,
                             this.childScale * (outerLayer[i].size / 2),
-                            "#FF0000",
+                            this.color,
                             childPath
                         )
                     );
@@ -234,7 +230,7 @@ function singleSquare(x, y, size, color, path) {
 
     this.plot = function () {
         if (this.size > 0) {
-            ctx.fillStyle = color;
+            ctx.fillStyle = this.color;
             ctx.fillRect(this.x, this.y, this.size, this.size);
         }
         return;
