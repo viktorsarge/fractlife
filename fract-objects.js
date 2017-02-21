@@ -2,11 +2,11 @@ function world() {
     this.inhabitants = []; // Used to store references of all the things living in the world
     this.populate = function () {
         var i = 0;
-        for (i = 0; i < randomIntFromInterval(40, 45); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
+        for (i = 0; i < randomIntFromInterval(2, 2); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
             this.inhabitants.push(new squareFractal(
                 randomIntFromInterval(10, w - 20),
                 randomIntFromInterval(10, h - 20),
-                randomIntFromInterval(10, 70),
+                randomIntFromInterval(40, 100),
                 "#FF0000",
                 randomIntFromInterval(-80, 80)/100,
                 randomIntFromInterval(-80, 80)/100,
