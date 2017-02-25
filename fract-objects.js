@@ -1,23 +1,30 @@
 function world() {
+    this.bgcolor = "black";
     this.inhabitants = []; // Used to store references of all the things living in the world
     this.populate = function () {
         var i = 0;
-        for (i = 0; i < randomIntFromInterval(2, 2); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
+        for (i = 0; i < randomIntFromInterval(2, 5); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
             this.inhabitants.push(new squareFractal(
-                randomIntFromInterval(10, w - 20),
-                randomIntFromInterval(10, h - 20),
-                randomIntFromInterval(40, 100),
-                "#FF0000",
-                randomIntFromInterval(-80, 80)/100,
-                randomIntFromInterval(-80, 80)/100,
-                randomIntFromInterval(-80, 80)/100
+                randomIntFromInterval(10, c.width - 20),  // centerx
+                randomIntFromInterval(10, c.height - 20),  // center y
+                randomIntFromInterval(40, 100),     // size
+                "#FF0000",                          // color
+                randomIntFromInterval(-80, 80)/100,  // rotationspeed
+                randomIntFromInterval(-80, 80)/100,  // directionX
+                randomIntFromInterval(-80, 80)/100   // directionY
             ));
+        }
+        
+        for (var i=0; i < this.inhabitants.length; ++i) {
+            for(var j=0; j < 4; ++j) {
+                 this.inhabitants[i].addLayer();
+            }
         }
         return;
     };
 
     this.update = function () {
-        this.clear();   // Calling my own clear function
+        this.clear();   // Calling own clear function
         var i = 0;
         for (i = 0; i < this.inhabitants.length; i += 1) {
             this.inhabitants[i].update();
@@ -26,9 +33,9 @@ function world() {
         return;
     };
 
-    this.clear = function () { // TODO - Make this function aware of the worlds bgcolor and size
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(0, 0, w, h);
+    this.clear = function () {
+        ctx.fillStyle = this.bgcolor;
+        ctx.fillRect(0, 0, c.width, c.height);
         return;
     };
 }
@@ -44,12 +51,13 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     this.size = size;
     this.centerX = centerX;
     this.centerY = centerY;
-    this.color = "green";
+    this.color = "black";
     this.rotationSpeed = rotationSpeed;
     this.rotation = 0;
     this.childScale = 0.85;
     this.directionX = directionX;
     this.directionY = directionY;
+    this.pulse = 1.0;
 
     // Register the initial center square of the fractal into the list of individual squares
     this.individualSquares.push(new singleSquare(0 - this.size / 2,
@@ -93,7 +101,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
             }
         }
         return outerLayer;
-    };	
+    };
 
     this.addLayer = function () {
         console.log("Inside addLayer");
@@ -163,19 +171,21 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         // Remove the layer with a certain position. -1 for outmost layer
     };
 
-    this.refreshPositions = function () {
+    this.update = function () {
         this.centerX = this.centerX + this.directionX;
         this.centerY = this.centerY + this.directionY;
-    };
-
-    this.update = function () {
-        this.refreshPositions();
         this.rotation = this.rotation + this.rotationSpeed;
-        if (this.centerX > w || this.centerX < 0) {
+        if (this.centerX > c.width || this.centerX < 0) {
             this.directionX = -this.directionX;
         }
-        if (this.centerY > h || this.centerY < 0) {
+        if (this.centerY > c.height || this.centerY < 0) {
             this.directionY = -this.directionY;
+        }
+        if (this.pulse < 0.55) {
+            this.pulse = this.pulse + 0.01;
+        }
+        if (this.pulse > 0.95) {
+            this.pulse = this.pulse - 0.01;
         }
         // Add calls to all behaviour (motions, resize and rotations) that should happen
         return;
@@ -189,10 +199,10 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         ctx.rotate(this.rotation * Math.PI / 180);   // Rotate canvas before painting
         // Lighting stuff below
         ctx.beginPath();
-        ctx.arc(0, 0, this.size * 2, 0, 2 * Math.PI);
-        var grd = ctx.createRadialGradient(0, 0, this.size * 2.5, 0, 0, this.size / 2);
+        ctx.arc(0, 0, this.size * 1.5, 0, 2 * Math.PI);
+        var grd = ctx.createRadialGradient(0, 0, this.size * 1.7, 0, 0, this.size / 2);
         grd.addColorStop(0, "black");
-        grd.addColorStop(1, "blue");
+        grd.addColorStop(this.pulse, "blue");
         ctx.fillStyle = grd;
         ctx.fill();
 

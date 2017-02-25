@@ -13,33 +13,17 @@
 // Global variables
 var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
-var w = 1400;					// TODO - replace this with fetching the width from myCanvas
-var h = 700;			    	// TODO - replace this with fetching the height from myCanvas
+c.width = document.body.clientWidth;
+c.height = document.body.clientHeight; 
 
 theWorld = new world();	
 theWorld.populate();
-
-for (var i=0; i < theWorld.inhabitants.length; ++i)
-{
-   for(var j=0; j < 4; ++j) {theWorld.inhabitants[i].addLayer();}
-}
-
-//console.log(theWorld.inhabitants[0].returnOuterLayer());
-    
-// setInterval(function(){theWorld.update()}, 20);
 
 function draw() {
     requestAnimationFrame(draw);
     theWorld.update();
 }
 draw();
-
-
-
-
-</script>
-
-  
-  
+</script>  
 </body>
 </html>
