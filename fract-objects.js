@@ -10,9 +10,9 @@ function world() {
                 randomIntFromInterval(10, c.height - 20),  // center y
                 randomIntFromInterval(40, 100),     // size
                 "#FF0000",                          // color
-                randomIntFromInterval(-80, 80)/100,  // rotationspeed
-                randomIntFromInterval(-80, 80)/100,  // directionX
-                randomIntFromInterval(-80, 80)/100,  // directionY
+                randomIntFromInterval(-90, 90)/100,  // rotationspeed
+                randomIntFromInterval(-90, 90)/100,  // directionX
+                randomIntFromInterval(-90, 90)/100,  // directionY
                 4,
                 this   // nrLayers
             ));
@@ -27,7 +27,7 @@ function world() {
         for (i = 0; i < this.inhabitants.length; i += 1) {
             this.inhabitants[i].update();
             //this.inhabitants[i].checkCollisions(i);
-            this.inhabitants[i].plot();
+            this.inhabitants[i].plot(i);
         }
         return;
     };
@@ -62,6 +62,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     this.bgBasecolor = "black";
     this.bgAccentcolor = "blue";
     this.world = world;
+    this.alive = true;
 
     // Register the initial center square of the fractal into the list of individual squares
     this.individualSquares.push(new singleSquare(0 - this.size / 2,
@@ -180,11 +181,15 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
             this.directionY = -this.directionY;
         }
         this.rotationSpeed = this.rotationSpeed * this.world.friction;
+        
+        if ((Math.abs(this.directionX) + Math.abs(this.directionY) + Math.abs(this.rotationSpeed)) < 0.05) {
+            this.alive = false;
+        }
         // Add calls to all behaviour (motions, resize and rotations) that should happen
         return;
     };
     
-    this.checkCollisions = function (i) {
+    this.checkCollisions = function () {
     // TODO - finish this 
         var inhabitantId = i;
         var i = 0;
@@ -193,7 +198,8 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         }
     }
 
-    this.plot = function () {
+    this.plot = function (id) {
+        if (this.alive) {
         var i = 0;
         ctx.save();
         ctx.translate(this.centerX, this.centerY); // Make the center of the fractal the canvas center before rotating around canvas center
@@ -212,6 +218,10 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
             this.individualSquares[i].plot();
         }
         ctx.restore();
+        } else {
+        this.kill(id);
+        }
+        
         return;
     };
 
@@ -225,6 +235,10 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     };
     
     this.addNrLayers(this.nrLayers);
+    
+    this.kill = function (id) {
+        this.world.inhabitants.pop(id);
+    }
 }
 
 
