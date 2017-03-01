@@ -6,8 +6,8 @@ function world() {
         var i = 0;
         for (i = 0; i < randomIntFromInterval(2, 5); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
             this.inhabitants.push(new squareFractal(
-                randomIntFromInterval(10, c.width - 20),  // centerx
-                randomIntFromInterval(10, c.height - 20),  // center y
+                randomIntFromInterval(150, c.width - 150),  // centerx
+                randomIntFromInterval(150, c.height - 150),  // center y
                 randomIntFromInterval(40, 100),     // size
                 "#FF0000",                          // color
                 randomIntFromInterval(-90, 90)/100,  // rotationspeed
@@ -177,11 +177,11 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         this.rotation = this.rotation + this.rotationSpeed;
         
         // Does it go over edge of world?
-        if (this.centerX > c.width || this.centerX < 0) {
+        if ((this.centerX + this.size * 1.5) > c.width || (this.centerX - this.size * 1.5) < 0) {
             this.directionX = -this.directionX;
             this.rotationSpeed = -this.rotationSpeed;
         }
-        if (this.centerY > c.height || this.centerY < 0) {
+        if ((this.centerY + this.size * 1.5)> c.height || (this.centerY - this.size * 1.5) < 0) {
             this.directionY = -this.directionY;
             this.rotationSpeed = -this.rotationSpeed;
         }
