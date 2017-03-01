@@ -1,6 +1,12 @@
-function world() {
-    this.bgcolor = "black";
-    this.friction = 0.9995;
+function config() {
+this.worldBgColor = "black";
+this.worldFriction = 0.9995;
+}
+
+function world(settings) {
+    this.settings = settings;
+    this.bgcolor = this.settings.worldBgColor;
+    this.friction = this.settings.worldFriction;
     this.inhabitants = []; // Used to store references of all the things living in the world
     this.populate = function () {
         var i = 0;

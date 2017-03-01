@@ -16,7 +16,8 @@ var ctx = c.getContext("2d");
 c.width = document.body.clientWidth;
 c.height = document.body.clientHeight; 
 
-theWorld = new world();	
+settings = new config();
+theWorld = new world(settings);	
 theWorld.populate();
 
 function draw() {
