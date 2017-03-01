@@ -169,16 +169,21 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     };
 
     this.update = function () {
+        // Decrease speed over time, move and rotate
         this.directionX = this.directionX * this.world.friction;
         this.directionY = this.directionY * this.world.friction;
         this.centerX = this.centerX + this.directionX;
         this.centerY = this.centerY + this.directionY;
         this.rotation = this.rotation + this.rotationSpeed;
+        
+        // Does it go over edge of world?
         if (this.centerX > c.width || this.centerX < 0) {
             this.directionX = -this.directionX;
+            this.rotationSpeed = -this.rotationSpeed;
         }
         if (this.centerY > c.height || this.centerY < 0) {
             this.directionY = -this.directionY;
+            this.rotationSpeed = -this.rotationSpeed;
         }
         this.rotationSpeed = this.rotationSpeed * this.world.friction;
         
