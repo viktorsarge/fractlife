@@ -1,5 +1,6 @@
 function world() {
     this.bgcolor = "black";
+    this.friction = 0.9995;
     this.inhabitants = []; // Used to store references of all the things living in the world
     this.populate = function () {
         var i = 0;
@@ -11,15 +12,12 @@ function world() {
                 "#FF0000",                          // color
                 randomIntFromInterval(-80, 80)/100,  // rotationspeed
                 randomIntFromInterval(-80, 80)/100,  // directionX
-                randomIntFromInterval(-80, 80)/100   // directionY
+                randomIntFromInterval(-80, 80)/100,  // directionY
+                4,
+                this   // nrLayers
             ));
         }
         
-        for (var i=0; i < this.inhabitants.length; ++i) {
-            for(var j=0; j < 4; ++j) {
-                 this.inhabitants[i].addLayer();
-            }
-        }
         return;
     };
 
@@ -28,6 +26,7 @@ function world() {
         var i = 0;
         for (i = 0; i < this.inhabitants.length; i += 1) {
             this.inhabitants[i].update();
+            //this.inhabitants[i].checkCollisions(i);
             this.inhabitants[i].plot();
         }
         return;
@@ -45,7 +44,7 @@ function world() {
 // ********************************************************************************
 
 // The main function used to create the squareFractal objects
-function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX, directionY) {
+function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX, directionY, nrLayers, world) {
     this.individualSquares = [];
     //console.log(this.individualSquares)
     this.size = size;
@@ -57,7 +56,12 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     this.childScale = 0.85;
     this.directionX = directionX;
     this.directionY = directionY;
-    this.pulse = 1.0;
+    this.pulse = 0;
+    this.nrLayers = nrLayers;
+    var i = 0;
+    this.bgBasecolor = "black";
+    this.bgAccentcolor = "blue";
+    this.world = world;
 
     // Register the initial center square of the fractal into the list of individual squares
     this.individualSquares.push(new singleSquare(0 - this.size / 2,
@@ -73,13 +77,6 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         }
         return layerArray;
     };
-
-    /*
-    this.rotate = function(rotation){
-    // Probably redundant since rotation is done in plot
-    // Can be kept to force rotation to a certain angle for docking etc.
-    return;
-    }  */
 
     this.resize = function () {
         // recalculate the size and position of all squares - from center and outwards since it´s based on parent size
@@ -104,7 +101,6 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     };
 
     this.addLayer = function () {
-        console.log("Inside addLayer");
         var outerLayer = this.returnOuterLayer(); // Fetches the squares farthest out in the fractal == the longest paths
         var i = 0;
         var childPath = "";
@@ -172,6 +168,8 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
     };
 
     this.update = function () {
+        this.directionX = this.directionX * this.world.friction;
+        this.directionY = this.directionY * this.world.friction;
         this.centerX = this.centerX + this.directionX;
         this.centerY = this.centerY + this.directionY;
         this.rotation = this.rotation + this.rotationSpeed;
@@ -181,42 +179,43 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         if (this.centerY > c.height || this.centerY < 0) {
             this.directionY = -this.directionY;
         }
-        if (this.pulse < 0.55) {
-            this.pulse = this.pulse + 0.01;
-        }
-        if (this.pulse > 0.95) {
-            this.pulse = this.pulse - 0.01;
-        }
+        this.rotationSpeed = this.rotationSpeed * this.world.friction;
         // Add calls to all behaviour (motions, resize and rotations) that should happen
         return;
     };
+    
+    this.checkCollisions = function (i) {
+    // TODO - finish this 
+        var inhabitantId = i;
+        var i = 0;
+        for (i = 0; i < theWorld.inhabitants.length; i += i) {
+            does2circlesOverlap();
+        }
+    }
 
     this.plot = function () {
         var i = 0;
-        //console.log("Inside squareFractal.plot()");
         ctx.save();
         ctx.translate(this.centerX, this.centerY); // Make the center of the fractal the canvas center before rotating around canvas center
         ctx.rotate(this.rotation * Math.PI / 180);   // Rotate canvas before painting
+
         // Lighting stuff below
         ctx.beginPath();
         ctx.arc(0, 0, this.size * 1.5, 0, 2 * Math.PI);
-        var grd = ctx.createRadialGradient(0, 0, this.size * 1.7, 0, 0, this.size / 2);
-        grd.addColorStop(0, "black");
-        grd.addColorStop(this.pulse, "blue");
+        var grd = ctx.createRadialGradient(0, 0, this.size * 1.7, 0, 0, this.size /3);
+        grd.addColorStop(0, this.bgBasecolor);
+        grd.addColorStop(1, this.bgAccentcolor);
         ctx.fillStyle = grd;
         ctx.fill();
 
-        for (i = 0; i < this.individualSquares.length; i += 1) { // Make sure to update all of the individual squares of the fractal
-            //console.log("Calling plot on square" + i);
+        for (i = 0; i < this.individualSquares.length; i += 1) {
             this.individualSquares[i].plot();
         }
         ctx.restore();
         return;
     };
 
-    // Fill up a fractal with specified nr of layers.
-    // TODO - rename to addNrLayers and change references to it
-    this.spawnNew = function (nrLayers) {
+    this.addNrLayers = function (nrLayers) {
         this.nrLayers = nrLayers;
         var i;
         for (i = 0; i < nrLayers; i += 1) {
@@ -224,6 +223,8 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         }
         return;
     };
+    
+    this.addNrLayers(this.nrLayers);
 }
 
 
