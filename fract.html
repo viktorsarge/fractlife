@@ -17,7 +17,7 @@ c.width = document.body.clientWidth;
 c.height = window.innerHeight; 
 
 settings = new config();
-theWorld = new world();	
+theWorld = new world(settings);	
 theWorld.populate();
 
 function draw() {
