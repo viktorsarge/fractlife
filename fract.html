@@ -14,10 +14,10 @@
 var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
 c.width = document.body.clientWidth;
-c.height = document.body.clientHeight; 
+c.height = window.innerHeight; 
 
 settings = new config();
-theWorld = new world(settings);	
+theWorld = new world();	
 theWorld.populate();
 
 function draw() {

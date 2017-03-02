@@ -1,29 +1,32 @@
 function config() {
-this.worldBgColor = "black";
-this.worldFriction = 0.9995;
+    this.worldBgColor = "black";
+    this.worldFriction = 0.9995;
+    this.fractGlowColor = "black";
+    this.fractGlowColor2 = "hsl(229, 100%, 50%)";
+    this.fractColor = "black";
+    this.fractChildScale = 0.85;
+    this.fractInitialRot = 0;
 }
 
-function world(settings) {
+function world() {
     this.settings = settings;
     this.bgcolor = this.settings.worldBgColor;
     this.friction = this.settings.worldFriction;
     this.inhabitants = []; // Used to store references of all the things living in the world
     this.populate = function () {
         var i = 0;
-        for (i = 0; i < randomIntFromInterval(2, 5); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
+        for (i = 0; i < randomIntFromInterval(10, 15); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
             this.inhabitants.push(new squareFractal(
                 randomIntFromInterval(150, c.width - 150),  // centerx
                 randomIntFromInterval(150, c.height - 150),  // center y
                 randomIntFromInterval(40, 100),     // size
-                "#FF0000",                          // color
-                randomIntFromInterval(-90, 90)/100,  // rotationspeed
-                randomIntFromInterval(-90, 90)/100,  // directionX
-                randomIntFromInterval(-90, 90)/100,  // directionY
+                randomIntFromInterval(-500, 500) / 100,  // rotationspeed
+                randomIntFromInterval(-90, 90) / 100,  // directionX
+                randomIntFromInterval(-90, 90) / 100,  // directionY
                 4,
                 this   // nrLayers
             ));
         }
-        
         return;
     };
 
@@ -50,32 +53,32 @@ function world(settings) {
 // ********************************************************************************
 
 // The main function used to create the squareFractal objects
-function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX, directionY, nrLayers, world) {
+function squareFractal(centerX, centerY, size, rotationSpeed, directionX, directionY, nrLayers, world) {
     this.individualSquares = [];
     //console.log(this.individualSquares)
     this.size = size;
     this.centerX = centerX;
     this.centerY = centerY;
-    this.color = "black";
+    this.color = settings.fractColor;
     this.rotationSpeed = rotationSpeed;
-    this.rotation = 0;
-    this.childScale = 0.85;
+    this.rotation = settings.fractInitialRot;
+    this.childScale = settings.fractChildScale;
     this.directionX = directionX;
     this.directionY = directionY;
     this.pulse = 0;
     this.nrLayers = nrLayers;
-    var i = 0;
-    this.bgBasecolor = "black";
-    this.bgAccentcolor = "blue";
+    this.bgBasecolor = settings.fractGlowColor;
+    this.bgAccentcolor = settings.fractGlowColor2;
     this.world = world;
     this.alive = true;
+    this.overlapping = [];
 
     // Register the initial center square of the fractal into the list of individual squares
     this.individualSquares.push(new singleSquare(0 - this.size / 2,
             0 - this.size / 2,
             this.size, this.color,
             ["C"]));
-
+/*
     this.returnLayer = function (position) { // Implement if accessing individual layers is needed
         var layerArray = [];
         var i;
@@ -84,7 +87,7 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         }
         return layerArray;
     };
-
+*/
     this.resize = function () {
         // recalculate the size and position of all squares - from center and outwards since it´s based on parent size
     };
@@ -170,9 +173,9 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         return;
     };
 
-    this.removeLayer = function (position) {
+//    this.removeLayer = function (position) {
         // Remove the layer with a certain position. -1 for outmost layer
-    };
+//    };
 
     this.update = function () {
         // Decrease speed over time, move and rotate
@@ -181,58 +184,54 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         this.centerX = this.centerX + this.directionX;
         this.centerY = this.centerY + this.directionY;
         this.rotation = this.rotation + this.rotationSpeed;
-        
+
         // Does it go over edge of world?
         if ((this.centerX + this.size * 1.5) > c.width || (this.centerX - this.size * 1.5) < 0) {
             this.directionX = -this.directionX;
             this.rotationSpeed = -this.rotationSpeed;
         }
-        if ((this.centerY + this.size * 1.5)> c.height || (this.centerY - this.size * 1.5) < 0) {
+        if ((this.centerY + this.size * 1.5) > c.height || (this.centerY - this.size * 1.5) < 0) {
             this.directionY = -this.directionY;
             this.rotationSpeed = -this.rotationSpeed;
         }
         this.rotationSpeed = this.rotationSpeed * this.world.friction;
-        
+
         if ((Math.abs(this.directionX) + Math.abs(this.directionY) + Math.abs(this.rotationSpeed)) < 0.05) {
             this.alive = false;
+            this.bgAccentcolor = "grey";
         }
-        // Add calls to all behaviour (motions, resize and rotations) that should happen
         return;
     };
-    
-    this.checkCollisions = function () {
-    // TODO - finish this 
-        var inhabitantId = i;
+
+    this.checkCollisions = function (id) {
+    // TODO - finish this
+        var inhabitantId = id;
         var i = 0;
-        for (i = 0; i < theWorld.inhabitants.length; i += i) {
+        for (i = 0; i < this.world.inhabitants.length; i += i) {
             does2circlesOverlap();
         }
-    }
+    };
 
     this.plot = function (id) {
-        if (this.alive) {
-        var i = 0;
-        ctx.save();
-        ctx.translate(this.centerX, this.centerY); // Make the center of the fractal the canvas center before rotating around canvas center
-        ctx.rotate(this.rotation * Math.PI / 180);   // Rotate canvas before painting
+        //if (this.alive) {
+            var i = 0;
+            ctx.save();
+            ctx.translate(this.centerX, this.centerY); // Make the center of the fractal the canvas center before rotating around canvas center
+            ctx.rotate(this.rotation * Math.PI / 180);   // Rotate canvas before painting
 
-        // Lighting stuff below
-        ctx.beginPath();
-        ctx.arc(0, 0, this.size * 1.5, 0, 2 * Math.PI);
-        var grd = ctx.createRadialGradient(0, 0, this.size * 1.7, 0, 0, this.size /3);
-        grd.addColorStop(0, this.bgBasecolor);
-        grd.addColorStop(1, this.bgAccentcolor);
-        ctx.fillStyle = grd;
-        ctx.fill();
+            // Lighting stuff below
+            ctx.beginPath();
+            ctx.arc(0, 0, this.size * 1.5, 0, 2 * Math.PI);
+            var grd = ctx.createRadialGradient(0, 0, this.size * 1.7, 0, 0, this.size / 3);
+            grd.addColorStop(0, this.bgBasecolor);
+            grd.addColorStop(1, this.bgAccentcolor);
+            ctx.fillStyle = grd;
+            ctx.fill();
 
-        for (i = 0; i < this.individualSquares.length; i += 1) {
-            this.individualSquares[i].plot();
-        }
-        ctx.restore();
-        } else {
-        this.kill(id);
-        }
-        
+            for (i = 0; i < this.individualSquares.length; i += 1) {
+                this.individualSquares[i].plot();
+            }
+            ctx.restore();
         return;
     };
 
@@ -244,12 +243,12 @@ function squareFractal(centerX, centerY, size, color, rotationSpeed, directionX,
         }
         return;
     };
-    
-    this.addNrLayers(this.nrLayers);
-    
+
     this.kill = function (id) {
         this.world.inhabitants.pop(id);
-    }
+    };
+
+    this.addNrLayers(this.nrLayers);
 }
 
 
