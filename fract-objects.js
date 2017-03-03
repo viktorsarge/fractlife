@@ -18,7 +18,7 @@ function world(settings) {
 
     this.populate = function () {
         var i = 0;
-        for (i = 0; i < randomIntFromInterval(10, 15); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
+        for (i = 0; i < randomIntFromInterval(5, 10); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
             this.inhabitants.push(new squareFractal(this));
         }
         return;
@@ -28,7 +28,7 @@ function world(settings) {
         this.clear();   // Calling own clear function
         var i = 0;
         for (i = 0; i < this.inhabitants.length; i += 1) {
-            this.inhabitants[i].update();
+            this.inhabitants[i].update(i);
             //this.inhabitants[i].checkCollisions(i);
             this.inhabitants[i].plot(i);
         }
@@ -47,10 +47,19 @@ function world(settings) {
 // ********************************************************************************
 
 // The main function used to create the squareFractal objects
-function squareFractal(world) {
-    this.size = randomIntFromInterval(40, 100);
-    this.centerX = randomIntFromInterval(150, world.width - 150);
-    this.centerY = randomIntFromInterval(150, world.heigth - 150);
+function squareFractal(world, initValues) {
+    if (!initValues) {
+        this.size = randomIntFromInterval(40, 100);
+        this.centerX = randomIntFromInterval(150, world.width - 150);
+        this.centerY = randomIntFromInterval(150, world.heigth - 150);
+        this.nrLayers = 4;
+    } else {
+        this.size = initValues[0];
+        this.centerX = initValues[1];
+        this.centerY = initValues[2];
+        this.nrLayers = 0;
+    }
+
     this.rotationSpeed = randomIntFromInterval(-500, 500) / 100;
     this.rotation = world.settings.fractInitialRot;
     this.directionX = randomIntFromInterval(-90, 90) / 100;
@@ -60,7 +69,6 @@ function squareFractal(world) {
     this.bgAccentcolor = world.settings.fractGlowColor2;
     this.alive = true;
     this.individualSquares = [];
-    this.nrLayers = 4;
     this.childScale = world.settings.fractChildScale;
     this.world = world;
     this.overlapping = [];
@@ -169,7 +177,7 @@ function squareFractal(world) {
         // Remove the layer with a certain position. -1 for outmost layer
 //    };
 
-    this.update = function () {
+    this.update = function (id) {
         // Decrease speed over time, move and rotate
         this.directionX = this.directionX * this.world.friction;
         this.directionY = this.directionY * this.world.friction;
@@ -191,6 +199,12 @@ function squareFractal(world) {
         if ((Math.abs(this.directionX) + Math.abs(this.directionY) + Math.abs(this.rotationSpeed)) < 0.05) {
             this.alive = false;
             this.bgAccentcolor = "grey";
+            console.log("Dissolve! ---------------------------- DISOSOSDSODSOLEVE");
+            if (this.individualSquares.length > 1) {
+                this.dissolve(id);
+            } else {
+                this.kill(id);
+            }
         }
         return;
     };
@@ -237,7 +251,24 @@ function squareFractal(world) {
     };
 
     this.kill = function (id) {
-        this.world.inhabitants.pop(id);
+        this.world.inhabitants.splice(id, 1);
+        //delete this;
+        console.log("KILLKILLKILLKILLKILLKILL KILL KILL KILL");
+    };
+    
+    this.dissolve = function (id) {
+        var i = 0;
+        console.log(this.individualSquares.length);
+        for (i = 0; i < this.individualSquares.length; i += 1) {
+            console.log(i);
+            var initarray = [];
+            initarray.push(this.individualSquares[i].size);
+            initarray.push(this.centerX + this.individualSquares[i].x);
+            initarray.push(this.centerY + this.individualSquares[i].y);
+            console.log(initarray);
+            this.world.inhabitants.push(new squareFractal(this.world, initarray));
+        }
+        this.kill(id);
     };
 
     this.addNrLayers(this.nrLayers);
