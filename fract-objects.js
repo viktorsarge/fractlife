@@ -1,6 +1,6 @@
 function config() {
     this.worldBgColor = "black";
-    this.worldFriction = 0.9995;
+    this.worldFriction = 0.9955;
     this.fractGlowColor = "black";
     this.fractGlowColor2 = "hsl(229, 100%, 50%)";
     this.fractColor = "black";
@@ -18,7 +18,7 @@ function world(settings) {
 
     this.populate = function () {
         var i = 0;
-        for (i = 0; i < randomIntFromInterval(5, 10); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
+        for (i = 0; i < randomIntFromInterval(3, 5); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
             this.inhabitants.push(new squareFractal(this));
         }
         return;
@@ -32,6 +32,9 @@ function world(settings) {
             //this.inhabitants[i].checkCollisions(i);
             this.inhabitants[i].plot(i);
         }
+        ctx.font="20px Georgia";
+        ctx.fillStyle = "white";
+        ctx.fillText(this.inhabitants.length,10,50);
         return;
     };
 
@@ -67,7 +70,7 @@ function squareFractal(world, initValues) {
     this.color = world.settings.fractColor;
     this.bgBasecolor = world.settings.fractGlowColor;
     this.bgAccentcolor = world.settings.fractGlowColor2;
-    this.alive = true;
+    this.state = "alive";
     this.individualSquares = [];
     this.childScale = world.settings.fractChildScale;
     this.world = world;
@@ -178,48 +181,56 @@ function squareFractal(world, initValues) {
 //    };
 
     this.update = function (id) {
-        // Decrease speed over time, move and rotate
-        this.directionX = this.directionX * this.world.friction;
-        this.directionY = this.directionY * this.world.friction;
-        this.centerX = this.centerX + this.directionX;
-        this.centerY = this.centerY + this.directionY;
-        this.rotation = this.rotation + this.rotationSpeed;
+        if (this.state !== "dead") {
+            // Decrease speed over time, move and rotate
+            this.directionX = this.directionX * this.world.friction;
+            if(this.state !== "dying") {
+                this.directionY = this.directionY * this.world.friction;
+            }
+            this.centerY = this.centerY + this.directionY;
+            this.centerX = this.centerX + this.directionX;
+            this.rotation = this.rotation + this.rotationSpeed;
+            // Does it go over edge of world?
+            if ((this.centerX + this.size * 1.5) > c.width || (this.centerX - this.size * 1.5) < 0) {
+                this.directionX = -this.directionX;
+                this.rotationSpeed = -this.rotationSpeed;
+            }
+            if ((this.centerY + this.size * 1.5) > c.height || (this.centerY - this.size * 1.5) < 0) {
+                if (this.state === "alive") {
+                    this.directionY = -this.directionY;
+                    this.rotationSpeed = -this.rotationSpeed;
+                } else if (this.state == "dying") {
+                    this.directionY = 0;
+                    this.directionX = 0;
+                    this.rotationSpeed = 0;
+                    this.state = "dead";
+                }
+            }
+            this.rotationSpeed = this.rotationSpeed * this.world.friction;
 
-        // Does it go over edge of world?
-        if ((this.centerX + this.size * 1.5) > c.width || (this.centerX - this.size * 1.5) < 0) {
-            this.directionX = -this.directionX;
-            this.rotationSpeed = -this.rotationSpeed;
-        }
-        if ((this.centerY + this.size * 1.5) > c.height || (this.centerY - this.size * 1.5) < 0) {
-            this.directionY = -this.directionY;
-            this.rotationSpeed = -this.rotationSpeed;
-        }
-        this.rotationSpeed = this.rotationSpeed * this.world.friction;
-
-        if ((Math.abs(this.directionX) + Math.abs(this.directionY) + Math.abs(this.rotationSpeed)) < 0.05) {
-            this.alive = false;
-            this.bgAccentcolor = "grey";
-            console.log("Dissolve! ---------------------------- DISOSOSDSODSOLEVE");
-            if (this.individualSquares.length > 1) {
-                this.dissolve(id);
-            } else {
-                this.kill(id);
+            // Dissolve if all movement energy is lost
+            if ((Math.abs(this.directionX) + Math.abs(this.directionY) + Math.abs(this.rotationSpeed)) < 0.05 && this.state === "alive") {
+                // console.log("Dissolve!");
+                if (this.individualSquares.length > 1) {
+                    this.dissolve(id);
+                } else if(this.state!="dying") {
+                    this.state = "dying";
+                    this.bgAccentcolor = "grey";
+                    this.directionY = 0;
+                    console.log(this.state);
+                }
+            }
+            if (this.state == "dying" && this.directionY < this.size * 0.05) {
+                this.directionY = this.directionY + this.size * 0.001;
             }
         }
+        if
+        //this.checkCollisions(id);
         return;
     };
 
-    this.checkCollisions = function (id) {
-    // TODO - finish this
-        var inhabitantId = id;
-        var i = 0;
-        for (i = 0; i < this.world.inhabitants.length; i += i) {
-            does2circlesOverlap();
-        }
-    };
-
     this.plot = function (id) {
-        //if (this.alive) {
+        //if (this.state === "alive") {
             var i = 0;
             ctx.save();
             ctx.translate(this.centerX, this.centerY); // Make the center of the fractal the canvas center before rotating around canvas center
@@ -252,24 +263,40 @@ function squareFractal(world, initValues) {
 
     this.kill = function (id) {
         this.world.inhabitants.splice(id, 1);
-        //delete this;
         console.log("KILLKILLKILLKILLKILLKILL KILL KILL KILL");
     };
     
     this.dissolve = function (id) {
         var i = 0;
-        console.log(this.individualSquares.length);
+        //console.log(this.individualSquares.length);
+        var initarray = [];
         for (i = 0; i < this.individualSquares.length; i += 1) {
-            console.log(i);
-            var initarray = [];
+            //console.log(i);
             initarray.push(this.individualSquares[i].size);
             initarray.push(this.centerX + this.individualSquares[i].x);
             initarray.push(this.centerY + this.individualSquares[i].y);
-            console.log(initarray);
             this.world.inhabitants.push(new squareFractal(this.world, initarray));
+            initarray = [];
         }
         this.kill(id);
     };
+/*
+    this.checkCollisions = function (id) {
+        var i = 0;
+        var overlap = false;
+        for (i = 0; i < this.world.inhabitants.length; i += 1) {
+            if (i !== id) {
+                overlap = circlesOverlap(this.centerX, this.centerY, this.size * 1.5, this.world.inhabitants[i].centerX, this.world.inhabitants[i].centerY, this.world.inhabitants[i].size * 1.5);
+                if (overlap) {
+                    this.overlapping.push(i);
+                }
+            }
+        }
+        if (this.overlapping.length > 0) {
+            this.dissolve(id);
+        }
+    };
+*/
 
     this.addNrLayers(this.nrLayers);
 }
