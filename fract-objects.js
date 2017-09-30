@@ -9,6 +9,7 @@ function config() {
 }
 
 function world(settings) {
+    this.aliveCount = 0;
     this.settings = settings;
     this.bgcolor = this.settings.worldBgColor;
     this.friction = this.settings.worldFriction;
@@ -19,14 +20,14 @@ function world(settings) {
     this.populate = function () {
         var i = 0;
         for (i = 0; i < randomIntFromInterval(3, 5); i += 1) {   // TODO - random rot speed + make the generation of fractals aware of the world size
-            this.inhabitants.push(new squareFractal(this));
+            this.inhabitants.push(new squareFractal(this, i));
         }
         return;
     };
 
     this.update = function () {
-        this.clear();   // Calling own clear function
         var i = 0;
+        this.clear();   // Calling own clear function
         for (i = 0; i < this.inhabitants.length; i += 1) {
             this.inhabitants[i].update(i);
             //this.inhabitants[i].checkCollisions(i);
@@ -35,6 +36,26 @@ function world(settings) {
         ctx.font="20px Georgia";
         ctx.fillStyle = "white";
         ctx.fillText(this.inhabitants.length,10,50);
+        
+        this.deadCount = this.inhabitants.reduce(function(n, fract) {
+            return n + (fract.state == 'dead');
+        }, 0);
+        if (this.deadCount === this.inhabitants.length) {
+            /*for (i = 0; i < this.inhabitants.length; i += 1) {
+                this.inhabitants[i].state = "alive";
+                this.inhabitants[i].directionY = -1;
+                this.inhabitants[i].bgAccentcolor = settings.fractGlowColor2;}*/
+                
+            for (i=0; i < this.inhabitants.length; i += 1) {
+                if (this.inhabitants[i].name === 0) {
+                    this.inhabitants[i].state = "alive";
+                    this.inhabitants[i].directionY = -1;
+                    this.inhabitants[i].bgAccentcolor = settings.fractGlowColor2;}
+                }
+            }
+            
+        
+        //console.log(this.aliveCount);
         return;
     };
 
@@ -50,7 +71,7 @@ function world(settings) {
 // ********************************************************************************
 
 // The main function used to create the squareFractal objects
-function squareFractal(world, initValues) {
+function squareFractal(world, number, initValues) {
     if (!initValues) {
         this.size = randomIntFromInterval(40, 100);
         this.centerX = randomIntFromInterval(150, world.width - 150);
@@ -75,12 +96,15 @@ function squareFractal(world, initValues) {
     this.childScale = world.settings.fractChildScale;
     this.world = world;
     this.overlapping = [];
+    this.name = number;
 
     // Register the initial center square of the fractal into the list of individual squares
     this.individualSquares.push(new singleSquare(0 - this.size / 2,
             0 - this.size / 2,
-            this.size, this.color,
-            ["C"]));
+            this.size, 
+            this.color,
+            ["C"], 
+            this.id));
 /*
     this.returnLayer = function (position) { // Implement if accessing individual layers is needed
         var layerArray = [];
@@ -128,7 +152,9 @@ function squareFractal(world, initValues) {
                             outerLayer[i].y - this.childScale * outerLayer[i].size / 2,
                             this.childScale * (outerLayer[i].size / 2),
                             this.color,
-                            childPath
+                            childPath,
+                            this.name
+                            
                         )
                     );
                 }
@@ -141,7 +167,8 @@ function squareFractal(world, initValues) {
                             outerLayer[i].y + outerLayer[i].size / 2 - this.childScale * outerLayer[i].size / 4,
                             this.childScale * (outerLayer[i].size / 2),
                             this.color,
-                            childPath
+                            childPath,
+                            this.name
                         )
                     );
                 }
@@ -154,7 +181,8 @@ function squareFractal(world, initValues) {
                             outerLayer[i].y + outerLayer[i].size,
                             this.childScale * (outerLayer[i].size / 2),
                             this.color,
-                            childPath
+                            childPath,
+                            this.name
                         )
                     );
                 }
@@ -167,7 +195,8 @@ function squareFractal(world, initValues) {
                             outerLayer[i].y + outerLayer[i].size / 2 - this.childScale * outerLayer[i].size / 4,
                             this.childScale * (outerLayer[i].size / 2),
                             this.color,
-                            childPath
+                            childPath,
+                            this.name
                         )
                     );
                 }
@@ -224,8 +253,6 @@ function squareFractal(world, initValues) {
                 this.directionY = this.directionY + this.size * 0.001;
             }
         }
-        if
-        //this.checkCollisions(id);
         return;
     };
 
@@ -275,7 +302,7 @@ function squareFractal(world, initValues) {
             initarray.push(this.individualSquares[i].size);
             initarray.push(this.centerX + this.individualSquares[i].x);
             initarray.push(this.centerY + this.individualSquares[i].y);
-            this.world.inhabitants.push(new squareFractal(this.world, initarray));
+            this.world.inhabitants.push(new squareFractal(this.world, this.name, initarray));
             initarray = [];
         }
         this.kill(id);
@@ -306,12 +333,13 @@ function squareFractal(world, initValues) {
 // **********************  Individual squares below
 // ********************************************************************************
 
-function singleSquare(x, y, size, color, path) {
+function singleSquare(x, y, size, color, path, family) {
     this.x = x;
     this.y = y;
     this.size = size;
     this.color = color;
     this.path = path;
+    this.family = family;
 
     this.plot = function () {
         if (this.size > 0) {
